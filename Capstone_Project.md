@@ -1,0 +1,235 @@
+------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+
+title: “Video Game Analysis”  
+author: “Ismail Khalil”  
+date: “2022-11-01”  
+output: github_document  
+
+------------------------------------------------------------------------
+
+# Capstone Project
+
+## Summary
+
+You are a junior data analyst working for a business intelligence
+consultant. You have been at your job for six months, and your boss
+feels you are ready for more responsibility. He has asked you to lead a
+project for a brand new client—this will involve everything from
+defining the business task all the way through presenting your
+data-driven recommendations. You will choose the topic, ask the right
+questions, identify a fresh dataset and ensure its integrity, conduct
+analysis, create compelling data visualizations, and prepare a
+presentation.
+
+## Ask
+
+Business Task: My client is the executive team from Nintendo, and they
+want me to analyze video game trends in the past to produce insights
+that will help them with their future products.
+
+The dataset I will use for my analysis will be from Kaggle, and it is a
+dataset about video game sales greater than 100,000 copies from 1980 to
+2016.
+
+A link to the dataset can be found by [clicking
+here](https://www.kaggle.com/datasets/gregorut/videogamesales?pag=).  
+
+## Prepare
+
+One of the limitations of this dataset is that it only goes up to 2016,
+and is not current. For the purposes of this project only this dataset
+will be used, but for a full analysis more current data is needed.
+
+The data is organized in long format and there are no bias or
+credibility issues as the full process on how they got the data was
+detailed in their Kaggle description.
+
+This data will help me derive insights because it has sales data related
+to a large range of companies as well as Nintendo games.
+
+The data from vgchartz has good data integrity, but the data are
+estimates.
+
+## Process
+
+To start I will download the relevant libraries, load in the dataset,
+and then clean up the data that I choose to use for my analysis.
+
+``` r
+install.packages('tidyverse')
+```
+
+    ## Error in install.packages : Updating loaded packages
+
+``` r
+library('tidyverse')
+```
+
+``` r
+sales_data_df <- read_csv("vgsales.csv")
+```
+
+    ## Rows: 16035 Columns: 11
+    ## ── Column specification ─────────────────────────────────
+    ## Delimiter: ","
+    ## chr (5): Name, Platform, Year, Genre, Publisher
+    ## dbl (6): Rank, NA_Sales, EU_Sales, JP_Sales, Other_Sa...
+    ## 
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+``` r
+view(sales_data_df)
+```
+
+The sales columns are the number of copies sold in millions and not the
+revenue.
+
+``` r
+glimpse(sales_data_df)
+```
+
+    ## Rows: 16,035
+    ## Columns: 11
+    ## $ Rank         <dbl> 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,…
+    ## $ Name         <chr> "Wii Sports", "Super Mario Bros.",…
+    ## $ Platform     <chr> "Wii", "NES", "Wii", "Wii", "GB", …
+    ## $ Year         <chr> "2006", "1985", "2008", "2009", "1…
+    ## $ Genre        <chr> "Sports", "Platform", "Racing", "S…
+    ## $ Publisher    <chr> "Nintendo", "Nintendo", "Nintendo"…
+    ## $ NA_Sales     <dbl> 41.49, 29.08, 15.85, 15.75, 11.27,…
+    ## $ EU_Sales     <dbl> 29.02, 3.58, 12.88, 11.01, 8.89, 2…
+    ## $ JP_Sales     <dbl> 3.77, 6.81, 3.79, 3.28, 10.22, 4.2…
+    ## $ Other_Sales  <dbl> 8.46, 0.77, 3.31, 2.96, 1.00, 0.58…
+    ## $ Global_Sales <dbl> 82.74, 40.24, 35.82, 33.00, 31.37,…
+
+Cleaning the data to make sure it only has games from 1980 to 2016
+
+``` r
+sales_data_df2 <- sales_data_df %>%
+filter(sales_data_df$Year >= 1980, sales_data_df$Year <= 2016)
+```
+
+Each variable does not have any missing values
+
+``` r
+sapply(sales_data_df2, function(x) sum(is.na(x)))
+```
+
+    ##         Rank         Name     Platform         Year 
+    ##            0            0            0            0 
+    ##        Genre    Publisher     NA_Sales     EU_Sales 
+    ##            0            0            0            0 
+    ##     JP_Sales  Other_Sales Global_Sales 
+    ##            0            0            0
+
+After using the unique function as well as carefully looking through
+each of the columns, the dataset is now clean.
+
+## Analyze & Share
+
+I want to first find out which publisher had the highest global sales
+out of all the years in this data set
+
+``` r
+global_sales_by_pub <- aggregate(sales_data_df2$Global_Sales, list(sales_data_df2$Publisher), FUN=sum)
+colnames(global_sales_by_pub) <- c("Publisher", "Global_Sales")
+```
+
+The top five publishers in global sales from 1980 to 2016 are:
+
+1.  Nintendo
+2.  Electronic Arts (EA)
+3.  Activision
+4.  Sony Computer Entertainment
+5.  Ubisoft
+
+I now want to find out which games in particular earned the highest
+global sales
+
+``` r
+global_sales_by_game <- (aggregate(sales_data_df2$Global_Sales, list(sales_data_df2$Name), FUN=sum))
+colnames(global_sales_by_game) <- c("Name", "Global_Sales")
+```
+
+It looks like the top five games for this time period is:
+
+1.  Wii Sports
+2.  Grand Theft Auto V
+3.  Super Mario Bros.
+4.  Tetris
+5.  Mario Cart Wii
+
+All of these games were published by Nintendo except for Grand Theft
+Auto which was published by Take Two Interactive.
+
+Now I want to see what genres are potentially on the rise by looking at
+global sales
+
+``` r
+ggplot(sales_data_df2, aes(x = Genre, y = Global_Sales,fill = Genre, color = Genre)) + geom_bar(stat = "identity") + coord_flip() + ggtitle( 'Global Sales per Genre')
+```
+
+![](Capstone_Project_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
+
+``` r
+ggplot(sales_data_df2, aes(x=Genre))+ geom_bar() + labs(y = "Games Released per Genre")+ coord_flip()+ ggtitle("Number of Games Released per Genre")
+```
+
+![](Capstone_Project_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
+
+The genre with the highest number of sales was action. However, the
+highest number of games released during this dataset were also under the
+action genre, which means that it is inconclusive whether or not action
+games are on the rise because we do not know whether or not it was the
+action genre that caused people to buy more of it or that there were so
+many action games games available that people just chose to buy those
+instead if games from other genres were not available. In fact, the
+number of games released per genre look proportional to the global sales
+per genre. It could be the case that because action games released so
+many more games they had more chances of having a game be a hit, which
+might have been the reason why they have the highest number of sales.
+
+I now want to take a look at all the all the games Nintendo released and
+the genres that each of them were in.
+
+``` r
+nintendo_games_released <- sales_data_df2 %>% filter(Publisher== "Nintendo")
+ggplot(nintendo_games_released, aes(x=Genre)) +geom_bar() + labs(y="Number of Games Released") + coord_flip() + ggtitle("Nintendo Games Released by Genre")
+```
+
+![](Capstone_Project_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
+
+Nintendo has produced the most Platform games and the least Fighting
+games. Nintendo should increase the number of Shooter games that they
+are releasing because if you look at global sales then you can see that
+that is one of the most popular genres, but Nintendo is not making
+enough of those games. Nintendo has the possibility of taking more
+market share away from the games currently producing Shooter games.
+
+I now want to see the top five publishers in the shooting genre and
+their global sales.
+
+``` r
+shooter_games_released <- sales_data_df2 %>% filter(Genre== "Shooter" & (Publisher == "Nintendo" |Publisher == "Electronic Arts" |Publisher == "Activision" |Publisher == "Ubisoft" |Publisher == "Microsoft Game Studios" ))
+ggplot(shooter_games_released, aes(x = Publisher, y = Global_Sales, fill = Publisher, color = Publisher)) + geom_bar(stat = "identity") + ggtitle("Global Sales per Publisher in Shooting Genre") + coord_flip()
+```
+
+![](Capstone_Project_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
+
+It is clear that Nintendo is lagging far behind in terms of sales in the
+shooting genre. If they want to keep up with the rest of the publishers
+in this genre they need to create games that could possibly be on par.
+
+## Act
+
+To conclude, I have three insights I want to share with the Nintendo
+executive team: Nintendo is the number one publisher in terms of global
+sales from 1980 to 2016. The game that earned the highest global sales
+in this time period was Wii Sports, which means that Nintendo should
+possibly publish a game similar to that in the future. Lastly, Nintendo
+should stay out of the shooting genre unless they can create a game that
+is on par with the likes of games, such as Activision’s Call of Duty
+franchise.
