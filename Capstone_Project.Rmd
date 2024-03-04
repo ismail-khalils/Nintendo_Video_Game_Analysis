@@ -4,6 +4,7 @@
 
 # Capstone Project
 
+rmarkdown::github_document
 Author: Ismail Khalil\
 Date: "2022-11-01"\
 Output: html_document
