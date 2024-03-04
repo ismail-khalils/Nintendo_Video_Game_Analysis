@@ -1,12 +1,18 @@
 ---
+
 ---
+
+
+title: "Video Game Analysis"\
+author: "Ismail Khalil"\
+date: "2022-11-01"\
+output: github_document\
+
 ---
 
 # Capstone Project
 
-Author: Ismail Khalil\
-Date: "2022-11-01"\
-Output: github_document
+
 
 ## Summary
 
